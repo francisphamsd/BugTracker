@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1700.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BugTrackerUI", "BugTrackerUI\BugTrackerUI.csproj", "{5BEAD8F2-BACF-4971-A6CA-9B6680A5BB3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BugTrackerLibrary", "BugTrackerLibrary\BugTrackerLibrary.csproj", "{6605F2CB-B359-46FF-BDD3-7FE3FAD68173}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A607F11-EFC0-4EF9-8F73-BE120BC388D3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5BEAD8F2-BACF-4971-A6CA-9B6680A5BB3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BEAD8F2-BACF-4971-A6CA-9B6680A5BB3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BEAD8F2-BACF-4971-A6CA-9B6680A5BB3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BEAD8F2-BACF-4971-A6CA-9B6680A5BB3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6605F2CB-B359-46FF-BDD3-7FE3FAD68173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6605F2CB-B359-46FF-BDD3-7FE3FAD68173}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6605F2CB-B359-46FF-BDD3-7FE3FAD68173}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6605F2CB-B359-46FF-BDD3-7FE3FAD68173}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42AD87D8-5F1A-4104-A338-8BBEA0F84C96}
+	EndGlobalSection
+EndGlobal
