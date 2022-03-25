@@ -1,8 +1,150 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+@inject ICategoryData categoryData
+@inject IStatusData statusData
+@inject IUserData userData
+@inject IBugData bugData
+@inject NavigationManager navManager
+@inject ProtectedSessionStorage sessionStorage
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
 
+@code {
+    private List<BugModel> bugs;
+    private List<CategoryModel> categories;
+    private List<StatusModel> statuses;
+
+    private string selectedCategory = "All";
+    private string selectedStatus = "All";
+    private string searchText = "";
+    bool isSortedByNew = true;
+
+    protected async override Task OnInitializedAsync()
+    {
+         categories = await categoryData.GetAllCategories();
+         statuses = await statusData.GetAllStatuses();
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+         if (firstRender)
+         {
+              await LoadFilterState();
+              await FilterBugs();
+              StateHasChanged();
+         }
+    }
+
+    private async Task LoadFilterState()
+    {
+         var stringResults = await sessionStorage.GetAsync<string>(nameof(selectedCategory));
+         selectedCategory = stringResults.Success ? stringResults.Value : "All";
+
+         stringResults = await sessionStorage.GetAsync<string>(nameof(selectedStatus));
+         selectedStatus = stringResults.Success ? stringResults.Value : "All";
+
+         stringResults = await sessionStorage.GetAsync<string>(nameof(searchText));
+         searchText = stringResults.Success ? stringResults.Value : "";
+
+         var boolResults = await sessionStorage.GetAsync<bool>(nameof(isSortedByNew));
+         isSortedByNew = boolResults.Success ? boolResults.Value : true;
+    }
+
+    private async Task SaveFilterState()
+    {
+         await sessionStorage.SetAsync(nameof(selectedCategory), selectedCategory);
+         await sessionStorage.SetAsync(nameof(selectedStatus), selectedStatus);
+         await sessionStorage.SetAsync(nameof(searchText), searchText);
+         await sessionStorage.SetAsync(nameof(isSortedByNew), isSortedByNew);
+    }
+
+    private async Task FilterBugs()
+    {
+         var output = await bugData.GetAllApprovedBugs();
+
+         if (selectedCategory != "All")
+         {
+              output = output.Where(s => s.Category?.CategoryName == selectedCategory).ToList();
+         }
+
+         if (selectedStatus != "All")
+         {
+              output = output.Where(s => s.BugStatus?.StatusName == selectedStatus).ToList();
+         }
+
+         if (string.IsNullOrWhiteSpace(searchText) == false)
+         {
+              output = output.Where(
+                   s => s.Bug.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) ||
+                   s.Description.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)
+                   ).ToList();
+         }
+
+         if (isSortedByNew)
+         {
+              output = output.OrderByDescending(s => s.DateReported).ToList();
+         }
+         else
+         {
+              output = output.OrderByDescending(s => s.UserVotes.Count)
+                                        .OrderByDescending(s => s.DateReported).ToList();
+         }
+
+         bugs = output;
+
+         await SaveFilterState();
+    }
+
+    private async Task OrderByNew(bool isNew)
+    {
+         isSortedByNew = isNew;
+         await FilterBugs();
+    }
+
+    private async Task OnSearchInput(string searchInput)
+    {
+         searchText = searchInput;
+         await FilterBugs();
+    }
+
+    private async Task OnCategoryClick(string category = "All")
+    {
+         selectedCategory = category;
+         await FilterBugs();
+    }
+
+    private async Task OnStatusClick(string status = "All")
+    {
+         selectedStatus = status;
+         await FilterBugs();
+    }
+
+    private string GetUpvoteTopText(BugModel bug)
+    {
+         if (bug.UserVotes?.Count > 0)
+         {
+              return bug.UserVotes.Count.ToString("00");
+         }
+         else
+         {
+              return "Click To";
+         }
+    }
+
+    private string GetUpvoteBottomText(BugModel bug)
+    {
+         if (bug.UserVotes?.Count > 1)
+         {
+              return "Upvotes";
+         }
+         else
+         {
+              return "Upvote";
+         }
+    }
+
+    private void OpenDetails(BugModel bug)
+    {
+         navManager.NavigateTo($"/Details/{bug.Id}");
+    }
+}
