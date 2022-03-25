@@ -1,0 +1,93 @@
+﻿@page "/Details/{Id}"
+@inject IBugData bugData
+@inject NavigationManager navManager
+
+<h1>Bug Details</h1>
+
+<div>
+    <div>
+        @if (bug is not null)
+           {
+                <div>
+                    <div>
+                        <div>
+                            <div>@GetUpvoteTopText()</div>
+                            <span class="oi oi-caret-top"></span>
+                            <div>@GetUpvoteBottomText()</div>
+                        </div>
+                        <div>
+                            <div>@bug.DateReported.ToString("MM.dd.yyyy")</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>@bug.Bug</div>
+                        <div>@bug.Author.DisplayName</div>
+                        <div>@bug.Description</div>
+                        <div>@bug.Category.CategoryName</div>
+                    </div>
+                    <div>
+                        <button @onclick="ClosePage"></button>
+                    </div>
+                </div>
+           }
+    </div>
+</div>
+
+@if (bug?.BugStatus is not null)
+   {
+        <div>
+            <div>
+                <div></div>
+                <div>
+                    <div>
+                        @bug.BugStatus.StatusName
+                    </div>
+                    <div>
+                        @((MarkupString)bug.OwnerNotes)
+                    </div>
+                </div>
+            </div>
+        </div>
+   }
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    private BugModel bug;
+
+    protected async override Task OnInitializedAsync()
+    {
+         bug = await bugData.GetBug(Id);
+    }
+
+    private void ClosePage()
+    {
+         navManager.NavigateTo("/");
+    }
+
+    private string GetUpvoteTopText()
+    {
+         if (bug.UserVotes?.Count > 0)
+         {
+              return bug.UserVotes.Count.ToString("00");
+         }
+         else
+         {
+              return "Click To";
+         }
+    }
+
+    private string GetUpvoteBottomText()
+    {
+         if (bug.UserVotes?.Count > 1)
+         {
+              return "Upvotes";
+         }
+         else
+         {
+              return "Upvote";
+         }
+    }
+}
+
