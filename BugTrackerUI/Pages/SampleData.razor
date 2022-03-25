@@ -118,14 +118,7 @@ else
               return;
          }
 
-         CategoryModel cat = new()
-         {
-              CategoryName = "Alpha",
-              CategoryDescription = "Alpha release version."
-         };
-         await categoryData.CreateCategory(cat);
-
-         cat = new()
+          CategoryModel cat = new()
          {
               CategoryName = "Low",
               CategoryDescription = "Bugs that have little or no impact on the key features of a product."
