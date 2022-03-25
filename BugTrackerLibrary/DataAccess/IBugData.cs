@@ -3,7 +3,7 @@ namespace BugTrackerLibrary.DataAccess;
 
 public interface IBugData
 {
-     Task CreateBug(BugModel bug);
+     Task ReportBug(BugModel bug);
      Task<List<BugModel>> GetAllApprovedBugs();
      Task<List<BugModel>> GetAllBugs();
      Task<List<BugModel>> GetAllBugsWaitingForApproval();

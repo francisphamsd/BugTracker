@@ -105,7 +105,7 @@ public class MongoBugData : IBugData
           }
      }
 
-     public async Task CreateBug(BugModel bug)
+     public async Task ReportBug(BugModel bug)
      {
           var client = _db.Client;
 
