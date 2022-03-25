@@ -1,0 +1,122 @@
+﻿@page "/SampleData"
+@inject ICategoryData categoryData
+@inject IStatusData statusData
+
+<h3>Sample Data</h3>
+
+@if (categoriesCreated)
+{
+    <h4>Categories have been created</h4>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="CreateCategories">Create Categories</button>
+}
+
+@if (statusesCreated)
+{
+    <h4>Statuses have been created</h4>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="CreateStatuses">Create Statuses</button>
+}
+
+@code {
+    private bool categoriesCreated = false;
+    private bool statusesCreated = false;
+
+    private async Task CreateCategories()
+    {
+        var categories = await categoryData.GetAllCategories();
+
+        if (categories?.Count > 0)
+        {
+            return;
+        }
+
+        CategoryModel cat = new()
+        {
+            CategoryName = "Alpha",
+            CategoryDescription = "Alpha release version."
+        };
+        await categoryData.CreateCategory(cat);
+
+        cat = new()
+        {
+            CategoryName = "Low",
+            CategoryDescription = "Bugs that have little or no impact on the key features of a product."
+        };
+        await categoryData.CreateCategory(cat);
+
+        cat = new()
+        {
+            CategoryName = "Medium",
+            CategoryDescription = "Bugs that affect product features and cause them to behave differently from expected, however with negligible impacts."
+        };
+        await categoryData.CreateCategory(cat);
+
+        cat = new()
+        {
+            CategoryName = "High",
+            CategoryDescription = "Bugs that interfere with some of the app’s key features and require urgent attention, however no crashes occur."
+        };
+        await categoryData.CreateCategory(cat);
+
+        cat = new()
+        {
+            CategoryName = "Critical",
+            CategoryDescription = "Bugs that completely blocks the functionality and performance of a product, causing crashes."
+        };
+        await categoryData.CreateCategory(cat);
+
+        cat = new()
+        {
+            CategoryName = "Suggestion",
+            CategoryDescription = "Features that the user would like to see in the future."
+        };
+        await categoryData.CreateCategory(cat);
+
+        categoriesCreated = true;
+    }
+
+    private async Task CreateStatuses()
+    {
+        var statuses = await statusData.GetAllStatuses();
+
+        if (statuses?.Count > 0)
+        {
+            return;
+        }
+
+        StatusModel stat = new()
+        {
+            StatusName = "Resolved",
+            StatusDescription = "Bug was accepted and fixed"
+        };
+        await statusData.CreateStatus(stat);
+
+        stat = new()
+        {
+            StatusName = "Open",
+            StatusDescription = "Bug is open for voting and to be fixed"
+        };
+        await statusData.CreateStatus(stat);
+
+        stat = new()
+        {
+            StatusName = "In Progress",
+            StatusDescription = "Bug is being reviewed and fixed by our developer"
+        };
+        await statusData.CreateStatus(stat);
+
+        stat = new()
+        {
+            StatusName = "Closed",
+            StatusDescription = "This is not a bug, but a feature"
+        };
+        await statusData.CreateStatus(stat);
+
+        statusesCreated = true;
+    }
+}

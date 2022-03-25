@@ -16,7 +16,7 @@ public class MongoCategoryData : ICategoryData
 
      public async Task<List<CategoryModel>> GetAllCategories()
      {
-          var output = _cache.Get<List<CategoryModel>>(cacheName);
+          var output = _cache.Get<List<CategoryModel>>(CacheName);
           if (output is null)
           {
                var results = await _categories.FindAsync(_ => true);
