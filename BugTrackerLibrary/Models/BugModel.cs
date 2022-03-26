@@ -13,7 +13,7 @@ public class BugModel
      public HashSet<string> UserVotes { get; set; } = new();
      public StatusModel BugStatus { get; set; }
      public string OwnerNotes { get; set; }
-     public bool ApprovedForRelease { get; set; } = false;
+     public bool AcceptedForRelease { get; set; } = false;
      public bool Archived { get; set; } = false;
      public bool Rejected { get; set; } = false;
 }

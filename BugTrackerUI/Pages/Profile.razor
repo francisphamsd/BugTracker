@@ -186,9 +186,9 @@
         if (loggedInUser is not null && results is not null)
         {
             submissions = results.OrderByDescending(s => s.DateReported).ToList();
-            accepted = submissions.Where(s => s.ApprovedForRelease && s.Archived == false & s.Rejected == false).ToList();
+            accepted = submissions.Where(s => s.AcceptedForRelease && s.Archived == false & s.Rejected == false).ToList();
             archived = submissions.Where(s => s.Archived && s.Rejected == false).ToList();
-            pending = submissions.Where(s => s.ApprovedForRelease == false && s.Rejected == false).ToList();
+            pending = submissions.Where(s => s.AcceptedForRelease == false && s.Rejected == false).ToList();
             rejected = submissions.Where(s => s.Rejected).ToList();
         }
     }

@@ -1,0 +1,20 @@
+﻿@page "/AdminAcceptance"
+@inject IBugData bugData
+@inject IUserData userData
+@inject NavigationManager navManager
+
+@code {
+    private List<BugModel> submissions;
+    private BugModel editingModel;
+    private string currentEditingTitle = "";
+    private string editedTitle = "";
+    private string currentEditingDescription = "";
+    private string editedDescription = "";
+
+    protected async override Task OnInitializedAsync()
+    {
+         submissions = await bugData.GetAllBugsWaitingForAcceptance();
+    }
+
+}
+

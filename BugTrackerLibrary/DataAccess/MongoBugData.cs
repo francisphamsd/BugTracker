@@ -46,10 +46,10 @@ public class MongoBugData : IBugData
           return output;
      }
 
-     public async Task<List<BugModel>> GetAllApprovedBugs()
+     public async Task<List<BugModel>> GetAllAcceptedBugs()
      {
           var output = await GetAllBugs();
-          return output.Where(x => x.ApprovedForRelease).ToList();
+          return output.Where(x => x.AcceptedForRelease).ToList();
      }
 
      public async Task<BugModel> GetBug(string id)
@@ -58,11 +58,11 @@ public class MongoBugData : IBugData
           return results.FirstOrDefault();
      }
 
-     public async Task<List<BugModel>> GetAllBugsWaitingForApproval()
+     public async Task<List<BugModel>> GetAllBugsWaitingForAcceptance()
      {
           var output = await GetAllBugs();
           return output.Where(x =>
-               x.ApprovedForRelease == false
+               x.AcceptedForRelease == false
                && x.Rejected == false).ToList();
      }
 
