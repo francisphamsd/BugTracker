@@ -32,6 +32,20 @@ public class MongoBugData : IBugData
           return output;
      }
 
+     public async Task<List<BugModel>> GetUsersBugs(string userId)
+     {
+          var output = _cache.Get<List<BugModel>>(userId);
+          if (output is null)
+          {
+               var results = await _bugs.FindAsync(b => b.Author.Id == userId);
+               output = results.ToList();
+
+               _cache.Set(userId, output, TimeSpan.FromMinutes(1));
+          }
+
+          return output;
+     }
+
      public async Task<List<BugModel>> GetAllApprovedBugs()
      {
           var output = await GetAllBugs();

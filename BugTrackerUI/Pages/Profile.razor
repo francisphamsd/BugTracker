@@ -1,0 +1,201 @@
+﻿@page "/Profile"
+@inject IBugData bugData
+@inject IUserData userData
+@inject NavigationManager navManager
+
+<h1>My Profile</h1>
+
+<div>
+    <div>
+        <button @onclick="ClosePage"></button>
+    </div>
+</div>
+
+<div>
+    <h2>My Account</h2>
+    <p>
+        <a href="#">
+            Edit My Profile
+        </a>
+    </p>
+</div>
+
+@if (accepted?.Count > 0)
+   {
+        <div>
+            <h2>Accepted Reports</h2>
+            <p>These are your reports that are currently being worked on</p>
+
+            @foreach (var b in accepted)
+               {
+                    <hr />
+                    <div>
+                        @b.Bug
+                    </div>
+                    <p>
+                        @b.DateReported.ToString("MM.dd.yyyy")
+                    </p>
+                    <p>
+                        Total Votes: @b.UserVotes.Count
+                    </p>
+                    <p>
+                        @b.Category.CategoryName
+                    </p>
+                    <p>
+                        @b.Description
+                    </p>
+                    @if (b.BugStatus is not null)
+                       {
+                            <div>
+                                @b.BugStatus.StatusName
+                            </div>
+                            <p>
+                                @((MarkupString)b.OwnerNotes)
+                            </p>
+                       }
+               }
+        </div>
+   }
+
+@if (archived?.Count > 0)
+   {
+        <div>
+            <h2>Archived Reports</h2>
+            <p>These are your reports that are storing in the archive</p>
+
+            @foreach (var b in archived)
+               {
+                    <hr />
+                    <div>
+                        @b.Bug
+                    </div>
+                    <p>
+                        @b.DateReported.ToString("MM.dd.yyyy")
+                    </p>
+                    <p>
+                        Total Votes: @b.UserVotes.Count
+                    </p>
+                    <p>
+                        @b.Category.CategoryName
+                    </p>
+                    <p>
+                        @b.Description
+                    </p>
+                    @if (b.BugStatus is not null)
+                       {
+                            <div>
+                                @b.BugStatus.StatusName
+                            </div>
+                            <p>
+                                @((MarkupString)b.OwnerNotes)
+                            </p>
+                       }
+               }
+        </div>
+   }
+
+@if (pending?.Count > 0)
+   {
+        <div>
+            <h2>Pending Reports</h2>
+            <p>These are your reports that have not yet been reviewed by the administrators</p>
+
+            @foreach (var b in pending)
+               {
+                    <hr />
+                    <div>
+                        @b.Bug
+                    </div>
+                    <p>
+                        @b.DateReported.ToString("MM.dd.yyyy")
+                    </p>
+                    <p>
+                        Total Votes: @b.UserVotes.Count
+                    </p>
+                    <p>
+                        @b.Category.CategoryName
+                    </p>
+                    <p>
+                        @b.Description
+                    </p>
+                    @if (b.BugStatus is not null)
+                       {
+                            <div>
+                                @b.BugStatus.StatusName
+                            </div>
+                            <p>
+                                @((MarkupString)b.OwnerNotes)
+                            </p>
+                       }
+               }
+        </div>
+   }
+
+@if (rejected?.Count > 0)
+   {
+        <div>
+            <h2>Rejected Reports</h2>
+            <p>These are your reports that are not deem to be appropriate for a bug tracker or feature suggestion</p>
+
+            @foreach (var b in rejected)
+               {
+                    <hr />
+                    <div>
+                        @b.Bug
+                    </div>
+                    <p>
+                        @b.DateReported.ToString("MM.dd.yyyy")
+                    </p>
+                    <p>
+                        Total Votes: @b.UserVotes.Count
+                    </p>
+                    <p>
+                        @b.Category.CategoryName
+                    </p>
+                    <p>
+                        @b.Description
+                    </p>
+                    @if (b.BugStatus is not null)
+                       {
+                            <div>
+                                @b.BugStatus.StatusName
+                            </div>
+                            <p>
+                                @((MarkupString)b.OwnerNotes)
+                            </p>
+                       }
+               }
+        </div>
+   }
+
+@code {
+    private UserModel loggedInUser;
+    private List<BugModel> submissions;
+    private List<BugModel> accepted;
+    private List<BugModel> archived;
+    private List<BugModel> pending;
+    private List<BugModel> rejected;
+
+    protected async override Task OnInitializedAsync()
+    {
+        //TODO - Replace with user lookup
+        loggedInUser = await userData.GetUserFromAuthentication("abc-123");
+
+        var results = await bugData.GetUsersBugs(loggedInUser.Id);
+
+        if (loggedInUser is not null && results is not null)
+        {
+            submissions = results.OrderByDescending(s => s.DateReported).ToList();
+            accepted = submissions.Where(s => s.ApprovedForRelease && s.Archived == false & s.Rejected == false).ToList();
+            archived = submissions.Where(s => s.Archived && s.Rejected == false).ToList();
+            pending = submissions.Where(s => s.ApprovedForRelease == false && s.Rejected == false).ToList();
+            rejected = submissions.Where(s => s.Rejected).ToList();
+        }
+    }
+
+    private void ClosePage()
+    {
+        navManager.NavigateTo("/");
+    }
+}
+
