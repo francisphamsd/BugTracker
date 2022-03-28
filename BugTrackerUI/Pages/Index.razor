@@ -1,5 +1,5 @@
 ﻿@page "/"
-
+@inject AuthenticationStateProvider authProvider
 @inject ICategoryData categoryData
 @inject IStatusData statusData
 @inject IUserData userData
@@ -83,140 +83,201 @@
 </div>
 
 @code {
-    private List<BugModel> bugs;
-    private List<CategoryModel> categories;
-    private List<StatusModel> statuses;
+     private UserModel loggedInUser;
+     private List<BugModel> bugs;
+     private List<CategoryModel> categories;
+     private List<StatusModel> statuses;
 
-    private string selectedCategory = "All";
-    private string selectedStatus = "All";
-    private string searchText = "";
-    bool isSortedByNew = true;
+     private string selectedCategory = "All";
+     private string selectedStatus = "All";
+     private string searchText = "";
+     bool isSortedByNew = true;
 
-    protected async override Task OnInitializedAsync()
-    {
-         categories = await categoryData.GetAllCategories();
-         statuses = await statusData.GetAllStatuses();
-    }
+     protected async override Task OnInitializedAsync()
+     {
+          categories = await categoryData.GetAllCategories();
+          statuses = await statusData.GetAllStatuses();
+          await LoadAndVerifyUser();
+     }
 
-    protected async override Task OnAfterRenderAsync(bool firstRender)
-    {
-         if (firstRender)
-         {
-              await LoadFilterState();
-              await FilterBugs();
-              StateHasChanged();
-         }
-    }
+     private async Task LoadAndVerifyUser()
+     {
+          var authState = await authProvider.GetAuthenticationStateAsync();
+          string objectId = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("objectidentifier"))?.Value;
 
-    private async Task LoadFilterState()
-    {
-         var stringResults = await sessionStorage.GetAsync<string>(nameof(selectedCategory));
-         selectedCategory = stringResults.Success ? stringResults.Value : "All";
+          if (string.IsNullOrWhiteSpace(objectId) == false)
+          {
+               loggedInUser = await userData.GetUserFromAuthentication(objectId) ?? new();
 
-         stringResults = await sessionStorage.GetAsync<string>(nameof(selectedStatus));
-         selectedStatus = stringResults.Success ? stringResults.Value : "All";
+               string firstName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("givenname"))?.Value;
+               string lastName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("surname"))?.Value;
+               string displayName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("name"))?.Value;
+               string email = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("email"))?.Value;
 
-         stringResults = await sessionStorage.GetAsync<string>(nameof(searchText));
-         searchText = stringResults.Success ? stringResults.Value : "";
+               bool isDirty = false;
+               if (objectId.Equals(loggedInUser.ObjectIdentifier) == false)
+               {
+                    isDirty = true;
+                    loggedInUser.ObjectIdentifier = objectId;
+               }
 
-         var boolResults = await sessionStorage.GetAsync<bool>(nameof(isSortedByNew));
-         isSortedByNew = boolResults.Success ? boolResults.Value : true;
-    }
+               if (firstName.Equals(loggedInUser.FirstName) == false)
+               {
+                    isDirty = true;
+                    loggedInUser.FirstName = firstName;
+               }
 
-    private async Task SaveFilterState()
-    {
-         await sessionStorage.SetAsync(nameof(selectedCategory), selectedCategory);
-         await sessionStorage.SetAsync(nameof(selectedStatus), selectedStatus);
-         await sessionStorage.SetAsync(nameof(searchText), searchText);
-         await sessionStorage.SetAsync(nameof(isSortedByNew), isSortedByNew);
-    }
+               if (lastName.Equals(loggedInUser.LastName) == false)
+               {
+                    isDirty = true;
+                    loggedInUser.LastName = lastName;
+               }
 
-    private async Task FilterBugs()
-    {
-         var output = await bugData.GetAllAcceptedBugs();
+               if (displayName.Equals(loggedInUser.DisplayName) == false)
+               {
+                    isDirty = true;
+                    loggedInUser.DisplayName = displayName;
+               }
 
-         if (selectedCategory != "All")
-         {
-              output = output.Where(s => s.Category?.CategoryName == selectedCategory).ToList();
-         }
+               if (email.Equals(loggedInUser.EmailAddress) == false)
+               {
+                    isDirty = true;
+                    loggedInUser.EmailAddress = email;
+               }
 
-         if (selectedStatus != "All")
-         {
-              output = output.Where(s => s.BugStatus?.StatusName == selectedStatus).ToList();
-         }
+               if (isDirty)
+               {
+                    if (string.IsNullOrWhiteSpace(loggedInUser.Id))
+                    {
+                         await userData.CreateUser(loggedInUser);
+                    }
+                    else
+                    {
+                         await userData.UpdateUser(loggedInUser);
+                    }
+               }
+          }
+     }
 
-         if (string.IsNullOrWhiteSpace(searchText) == false)
-         {
-              output = output.Where(
-                   s => s.Bug.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) ||
-                   s.Description.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)
-                   ).ToList();
-         }
+     protected async override Task OnAfterRenderAsync(bool firstRender)
+     {
+          if (firstRender)
+          {
+               await LoadFilterState();
+               await FilterBugs();
+               StateHasChanged();
+          }
+     }
 
-         if (isSortedByNew)
-         {
-              output = output.OrderByDescending(s => s.DateReported).ToList();
-         }
-         else
-         {
-              output = output.OrderByDescending(s => s.UserVotes.Count)
-                                        .ThenByDescending(s => s.DateReported).ToList();
-         }
+     private async Task LoadFilterState()
+     {
+          var stringResults = await sessionStorage.GetAsync<string>(nameof(selectedCategory));
+          selectedCategory = stringResults.Success ? stringResults.Value : "All";
 
-         bugs = output;
-         await SaveFilterState();
-    }
+          stringResults = await sessionStorage.GetAsync<string>(nameof(selectedStatus));
+          selectedStatus = stringResults.Success ? stringResults.Value : "All";
 
-    private async Task OrderByNew(bool isNew)
-    {
-         isSortedByNew = isNew;
-         await FilterBugs();
-    }
+          stringResults = await sessionStorage.GetAsync<string>(nameof(searchText));
+          searchText = stringResults.Success ? stringResults.Value : "";
 
-    private async Task OnSearchInput(string searchInput)
-    {
-         searchText = searchInput;
-         await FilterBugs();
-    }
+          var boolResults = await sessionStorage.GetAsync<bool>(nameof(isSortedByNew));
+          isSortedByNew = boolResults.Success ? boolResults.Value : true;
+     }
 
-    private async Task OnCategoryClick(string category = "All")
-    {
-         selectedCategory = category;
-         await FilterBugs();
-    }
+     private async Task SaveFilterState()
+     {
+          await sessionStorage.SetAsync(nameof(selectedCategory), selectedCategory);
+          await sessionStorage.SetAsync(nameof(selectedStatus), selectedStatus);
+          await sessionStorage.SetAsync(nameof(searchText), searchText);
+          await sessionStorage.SetAsync(nameof(isSortedByNew), isSortedByNew);
+     }
 
-    private async Task OnStatusClick(string status = "All")
-    {
-         selectedStatus = status;
-         await FilterBugs();
-    }
+     private async Task FilterBugs()
+     {
+          var output = await bugData.GetAllAcceptedBugs();
 
-    private string GetUpvoteTopText(BugModel bug)
-    {
-         if (bug.UserVotes?.Count > 0)
-         {
-              return bug.UserVotes.Count.ToString("00");
-         }
-         else
-         {
-              return "Click To";
-         }
-    }
+          if (selectedCategory != "All")
+          {
+               output = output.Where(s => s.Category?.CategoryName == selectedCategory).ToList();
+          }
 
-    private string GetUpvoteBottomText(BugModel bug)
-    {
-         if (bug.UserVotes?.Count > 1)
-         {
-              return "Upvotes";
-         }
-         else
-         {
-              return "Upvote";
-         }
-    }
+          if (selectedStatus != "All")
+          {
+               output = output.Where(s => s.BugStatus?.StatusName == selectedStatus).ToList();
+          }
 
-    private void OpenDetails(BugModel bug)
-    {
-         navManager.NavigateTo($"/Details/{bug.Id}");
-    }
+          if (string.IsNullOrWhiteSpace(searchText) == false)
+          {
+               output = output.Where(
+                    s => s.Bug.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) ||
+                    s.Description.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)
+                    ).ToList();
+          }
+
+          if (isSortedByNew)
+          {
+               output = output.OrderByDescending(s => s.DateReported).ToList();
+          }
+          else
+          {
+               output = output.OrderByDescending(s => s.UserVotes.Count)
+                                         .ThenByDescending(s => s.DateReported).ToList();
+          }
+
+          bugs = output;
+          await SaveFilterState();
+     }
+
+     private async Task OrderByNew(bool isNew)
+     {
+          isSortedByNew = isNew;
+          await FilterBugs();
+     }
+
+     private async Task OnSearchInput(string searchInput)
+     {
+          searchText = searchInput;
+          await FilterBugs();
+     }
+
+     private async Task OnCategoryClick(string category = "All")
+     {
+          selectedCategory = category;
+          await FilterBugs();
+     }
+
+     private async Task OnStatusClick(string status = "All")
+     {
+          selectedStatus = status;
+          await FilterBugs();
+     }
+
+     private string GetUpvoteTopText(BugModel bug)
+     {
+          if (bug.UserVotes?.Count > 0)
+          {
+               return bug.UserVotes.Count.ToString("00");
+          }
+          else
+          {
+               return "Click To";
+          }
+     }
+
+     private string GetUpvoteBottomText(BugModel bug)
+     {
+          if (bug.UserVotes?.Count > 1)
+          {
+               return "Upvotes";
+          }
+          else
+          {
+               return "Upvote";
+          }
+     }
+
+     private void OpenDetails(BugModel bug)
+     {
+          navManager.NavigateTo($"/Details/{bug.Id}");
+     }
 }

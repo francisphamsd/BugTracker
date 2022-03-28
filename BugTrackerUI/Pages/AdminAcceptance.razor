@@ -1,4 +1,5 @@
 ﻿@page "/AdminAcceptance"
+@attribute [Authorize(Policy = "Admin")]
 @inject IBugData bugData
 @inject IUserData userData
 @inject NavigationManager navManager
@@ -13,124 +14,124 @@
 </div>
 
 @if (submissions is not null)
-   {
-          foreach (var s in submissions)
-          {
+{
+    foreach (var s in submissions)
+    {
+        <div>
+            <div>
+                <button @onclick="(() => AcceptSubmission(s))">Accept</button>
+                <button @onclick="(() => RejectSubmission(s))">Reject</button>
+            </div>
+            <div>
                 <div>
-                    <div>
-                        <button @onclick="(() => AcceptSubmission(s))">Accept</button>
-                        <button @onclick="(() => RejectSubmission(s))">Reject</button>
-                    </div>
-                    <div>
-                        <div>
-                            @if (currentEditingTitle == s.Id)
-                               {
-                                    <EditForm Model="@editedTitle" OnSubmit="(() => SaveTitle(s))">
-                                        <InputText @bind-Value="editedTitle" />
-                                        <button type="submit">
-                                            <span class="oi oi-check"></span>
-                                        </button>
-                                        <button @onclick="(() => currentEditingTitle = string.Empty)">
-                                            <span class="oi oi-x"></span>
-                                        </button>
-                                    </EditForm>
-                               }
-                                 else
-                                  {
-                                    @s.Bug
-                                    <span class="oi oi-pencil" @onclick="(() => EditTitle(s))"></span>
-                                  }
-                        </div>
-                        <div>
-                            @s.Category.CategoryName
-                        </div>
-                        <div>
-                            @s.Author.DisplayName
-                        </div>
-                        <div>
-                            @if (currentEditingDescription == s.Id)
-                               {
-                                  <EditForm Model="@editedDescription" OnSubmit="(() => SaveDescription(s))">
-                                        <InputText @bind-Value="editedDescription" />
-                                        <button type="submit">
-                                            <span class="oi oi-check"></span>
-                                        </button>
-                                        <button @onclick="(() => currentEditingDescription = string.Empty)">
-                                            <span class="oi oi-x"></span>
-                                        </button>
-                                  </EditForm>
-                               }
-                                 else
-                                  {
-                                    @s.Description
-                                    <span class="oi oi-pencil" @onclick="(() => EditDescription(s))"></span>
-                                  }
-                        </div>
-                    </div>
+                    @if (currentEditingTitle == s.Id)
+                    {
+                        <EditForm Model="@editedTitle" OnSubmit="(() => SaveTitle(s))">
+                            <InputText @bind-Value="editedTitle" />
+                            <button type="submit">
+                                <span class="oi oi-check"></span>
+                            </button>
+                            <button @onclick="(() => currentEditingTitle = string.Empty)">
+                                <span class="oi oi-x"></span>
+                            </button>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        @s.Bug
+                        <span class="oi oi-pencil" @onclick="(() => EditTitle(s))"></span>
+                    }
                 </div>
-          }
-   }
+                <div>
+                    @s.Category.CategoryName
+                </div>
+                <div>
+                    @s.Author.DisplayName
+                </div>
+                <div>
+                    @if (currentEditingDescription == s.Id)
+                    {
+                        <EditForm Model="@editedDescription" OnSubmit="(() => SaveDescription(s))">
+                            <InputText @bind-Value="editedDescription" />
+                            <button type="submit">
+                                <span class="oi oi-check"></span>
+                            </button>
+                            <button @onclick="(() => currentEditingDescription = string.Empty)">
+                                <span class="oi oi-x"></span>
+                            </button>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        @s.Description
+                        <span class="oi oi-pencil" @onclick="(() => EditDescription(s))"></span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
 
 @code {
-     private List<BugModel> submissions;
-     private BugModel editingModel;
-     private string currentEditingTitle = "";
-     private string editedTitle = "";
-     private string currentEditingDescription = "";
-     private string editedDescription = "";
+    private List<BugModel> submissions;
+    private BugModel editingModel;
+    private string currentEditingTitle = "";
+    private string editedTitle = "";
+    private string currentEditingDescription = "";
+    private string editedDescription = "";
 
-     protected async override Task OnInitializedAsync()
-     {
-          submissions = await bugData.GetAllBugsWaitingForAcceptance();
-     }
+    protected async override Task OnInitializedAsync()
+    {
+        submissions = await bugData.GetAllBugsWaitingForAcceptance();
+    }
 
-     private async Task AcceptSubmission(BugModel submission)
-     {
-          submission.AcceptedForRelease = true;
-          submissions.Remove(submission);
-          await bugData.UpdateBug(submission);
-     }
+    private async Task AcceptSubmission(BugModel submission)
+    {
+        submission.AcceptedForRelease = true;
+        submissions.Remove(submission);
+        await bugData.UpdateBug(submission);
+    }
 
-     private async Task RejectSubmission(BugModel submission)
-     {
-          submission.Rejected = true;
-          submissions.Remove(submission);
-          await bugData.UpdateBug(submission);
-     }
+    private async Task RejectSubmission(BugModel submission)
+    {
+        submission.Rejected = true;
+        submissions.Remove(submission);
+        await bugData.UpdateBug(submission);
+    }
 
-     private void EditTitle(BugModel model)
-     {
-          editingModel = model;
-          editedTitle = model.Bug;
-          currentEditingTitle = model.Id;
-          currentEditingDescription = "";
-     }
+    private void EditTitle(BugModel model)
+    {
+        editingModel = model;
+        editedTitle = model.Bug;
+        currentEditingTitle = model.Id;
+        currentEditingDescription = "";
+    }
 
-     private async Task SaveTitle(BugModel model)
-     {
-          currentEditingTitle = string.Empty;
-          model.Bug = editedTitle;
-          await bugData.UpdateBug(model);
-     }
+    private async Task SaveTitle(BugModel model)
+    {
+        currentEditingTitle = string.Empty;
+        model.Bug = editedTitle;
+        await bugData.UpdateBug(model);
+    }
 
-     private void EditDescription(BugModel model)
-     {
-          editingModel = model;
-          editedDescription = model.Description;
-          currentEditingTitle = "";
-          currentEditingDescription = model.Id;
-     }
+    private void EditDescription(BugModel model)
+    {
+        editingModel = model;
+        editedDescription = model.Description;
+        currentEditingTitle = "";
+        currentEditingDescription = model.Id;
+    }
 
-     private async Task SaveDescription(BugModel model)
-     {
-          currentEditingDescription = string.Empty;
-          model.Description = editedDescription;
-          await bugData.UpdateBug(model);
-     }
+    private async Task SaveDescription(BugModel model)
+    {
+        currentEditingDescription = string.Empty;
+        model.Description = editedDescription;
+        await bugData.UpdateBug(model);
+    }
 
-     private void ClosePage()
-     {
-          navManager.NavigateTo("/");
-     }
+    private void ClosePage()
+    {
+        navManager.NavigateTo("/");
+    }
 }
 

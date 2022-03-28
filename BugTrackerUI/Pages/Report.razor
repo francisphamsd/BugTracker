@@ -1,6 +1,8 @@
 ﻿@page  "/Report"
+@attribute [Authorize]
 @using BugTrackerUI.Components
 @using BugTrackerUI.Models
+@inject AuthenticationStateProvider authProvider
 @inject ICategoryData categoryData
 @inject IBugData bugData
 @inject IUserData userData
@@ -61,8 +63,10 @@
     {
          categories = await categoryData.GetAllCategories();
 
-         //TODO - Replace with user lookup
-         loggedInUser = await userData.GetUserFromAuthentication("abc-123");
+         // var authState = await authProvider.GetAuthenticationStateAsync();
+         // string objectId = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("objectidentifier"))?.Value;
+         // loggedInUser = await userData.GetUserFromAuthentication(objectId);
+         loggedInUser = await authProvider.GetUserFromAuth(userData);
     }
 
     private void ClosePage()
