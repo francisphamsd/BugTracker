@@ -7,48 +7,49 @@
 @inject NavigationManager navManager
 @inject ProtectedSessionStorage sessionStorage
 
-<h1>Bug Reports</h1>
-<div>
-    <button>Report</button>
+<h1 class="page-heading text-uppercase mb-4">Bug Reports</h1>
+<div class="bug-container">
+    <button @onclick="LoadReportPage" class="bug-btn btn btn-outline-dark btn-lg text-uppercase">Report</button>
 </div>
 
-<div>
-    <div>@bugs?.Count Bugs</div>
-    <div>
-        <button @onclick="(() => OrderByNew(true))">New</button>
-        <button @onclick="(() => OrderByNew(false))">Popular</button>
+<div class="row">
+    <div class="bugs-count col-md-4 text-dark mt-2">@bugs?.Count Bugs</div>
+    <div class="col-md-4 col-xl-5 btn-group">
+        <button class="btn btn-order @SortedByNewClass(true)" @onclick="(() => OrderByNew(true))">New</button>
+        <button class="btn btn-order @SortedByNewClass(false)" @onclick="(() => OrderByNew(false))">Popular</button>
     </div>
-    <div>
+    <div class="col-md-4 col-xl-3 search-box">
         <input type="text"
                placeholder="Search"
                aria-label="Search box"
+               class="form-control rounded-control"
                @oninput="((txt) => OnSearchInput((string)txt.Value))" />
     </div>
 </div>
 
-<div>
-    <div>
+<div class="row">
+    <div class="col-md-8 col-xl-9">
         @if (bugs is not null)
            {
                 <Virtualize Items="@bugs" Context="b" OverscanCount="10">
-                    <div>
-                        <div @onclick="(() => VoteUp(b))">
-                            <div>@GetUpvoteTopText(b)</div>
-                            <span class="oi oi-caret-top"></span>
-                            <div>@GetUpvoteBottomText(b)</div>
+                    <div class="bug-entry">
+                        <div class="@GetVoteClass(b)" @onclick="(() => VoteUp(b))">
+                            <div class="text-uppercase">@GetUpvoteTopText(b)</div>
+                            <span class="oi oi-caret-top" style="font-size: 3rem;"></span>
+                            <div class="text-uppercase">@GetUpvoteBottomText(b)</div>
                         </div>
-                        <div>
-                            <div @onclick="(() => OpenDetails(b))">
+                        <div class="bug-entry-text">
+                            <div class="bug-entry-text-title" @onclick="(() => OpenDetails(b))">
                                 @b.Bug
                             </div>
                             <div>
-                                <div @onclick="(() => OpenDetails(b))">
+                                <div class="bug-entry-text-category" @onclick="(() => OpenDetails(b))">
                                     @b.Category?.CategoryName
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <div>
+                        <div class="bug-entry-status @GetBugStatusClass(b)">
+                            <div class="bug-entry-status-text">
                                 @b.BugStatus?.StatusName
                             </div>
                         </div>
@@ -56,30 +57,31 @@
                 </Virtualize>
            }
     </div>
-</div>
-<div>
-    @if (categories is not null)
-       {
-            <div>
-                  <span>Category</span>
-                  <div @onclick="(() => OnCategoryClick())">All</div>
-                  @foreach (var c in categories)
-                    {
-                         <div @onclick="(() => OnCategoryClick(c.CategoryName))">@c.CategoryName</div>
-                    }
-            </div>
-       }
-    @if (statuses is not null)
-       {
-            <div>
-                  <span>Status</span>
-                  <div @onclick="(() => OnStatusClick())">All</div>
-                  @foreach (var s in statuses)
-                    {
-                         <div @onclick="(() => OnStatusClick(s.StatusName))">@s.StatusName</div>
-                    }
-            </div>
-       }
+
+    <div class="col-md-4 col-xl-3">
+        @if (categories is not null)
+           {
+                <div class="categories">
+                      <span class="text-uppercase fw-bold">Category</span>
+                      <div class="@GetSelectedCategory()" @onclick="(() => OnCategoryClick())">All</div>
+                      @foreach (var c in categories)
+                        {
+                             <div class="@GetSelectedCategory(c.CategoryName)" @onclick="(() => OnCategoryClick(c.CategoryName))">@c.CategoryName</div>
+                        }
+                </div>
+           }
+        @if (statuses is not null)
+           {
+                <div class="statuses">
+                      <span class="text-uppercase fw-bold">Status</span>
+                      <div class="@GetSelectedStatus()" @onclick="(() => OnStatusClick())">All</div>
+                      @foreach (var s in statuses)
+                        {
+                             <div class="@GetSelectedStatus(s.StatusName)" @onclick="(() => OnStatusClick(s.StatusName))">@s.StatusName</div>
+                        }
+                </div>
+           }
+    </div>
 </div>
 
 @code {
@@ -98,6 +100,18 @@
           categories = await categoryData.GetAllCategories();
           statuses = await statusData.GetAllStatuses();
           await LoadAndVerifyUser();
+     }
+
+     private void LoadReportPage()
+     {
+          if (loggedInUser is not null)
+          {
+               navManager.NavigateTo("/Report");
+          }
+          else
+          {
+               navManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
+          }
      }
 
      private async Task LoadAndVerifyUser()
@@ -208,10 +222,8 @@
 
           if (string.IsNullOrWhiteSpace(searchText) == false)
           {
-               output = output.Where(
-                    s => s.Bug.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) ||
-                    s.Description.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)
-                    ).ToList();
+               output = output.Where(s => s.Bug.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) ||
+                    s.Description.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
           }
 
           if (isSortedByNew)
@@ -316,5 +328,76 @@
      private void OpenDetails(BugModel bug)
      {
           navManager.NavigateTo($"/Details/{bug.Id}");
+     }
+
+     private string SortedByNewClass(bool isNew)
+     {
+          if (isNew == isSortedByNew)
+          {
+               return "sorted-selected";
+          }
+          else
+          {
+               return "";
+          }
+     }
+
+     private string GetVoteClass(BugModel bug)
+     {
+          if (bug.UserVotes is null || bug.UserVotes.Count == 0)
+          {
+               return "bug-entry-no-votes";
+          }
+          else if (bug.UserVotes.Contains(loggedInUser?.Id))
+          {
+               return "bug-entry-voted";
+          }
+          else
+          {
+               return "bug-entry-not-voted";
+          }
+     }
+
+     private string GetBugStatusClass(BugModel bug)
+     {
+          if (bug is null || bug.BugStatus is null)
+          {
+               return "bug-entry-status-none";
+          }
+
+          string output = bug.BugStatus.StatusName switch
+          {
+               "Resolved" => "bug-entry-status-resolved",
+               "Open" => "bug-entry-status-open",
+               "In Progress" => "bug-entry-status-in-progress",
+               "Closed" => "bug-entry-status-closed",
+               _ => "bug-entry-status-none",
+          };
+
+          return output;
+     }
+
+     private string GetSelectedCategory(string category = "All")
+     {
+          if (category == selectedCategory)
+          {
+               return "selected-category";
+          }
+          else
+          {
+               return "";
+          }
+     }
+
+     private string GetSelectedStatus(string status = "All")
+     {
+          if (status == selectedStatus)
+          {
+               return "selected-status";
+          }
+          else
+          {
+               return "";
+          }
      }
 }
