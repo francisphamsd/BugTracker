@@ -4,6 +4,7 @@
 
 :root {
      --white: #FFFFFF;
+     --gray: #DDDDDD;
      --black: #000000;
      --theme-teal: #07A899;
 }
@@ -113,3 +114,77 @@ a, .btn-link {
      border-color: var(--theme-teal);
 }
 
+.bugs-count {
+     font-family: 'Montserrat', sans-serif;
+     font-weight: 700;
+     font-size: 1rem;
+}
+
+.btn-order {
+     background-color: var(--gray);
+     border: 0px solid var(--black);
+     border-radius: 10px;
+}
+
+.btn:focus,
+.form-control:focus {
+     box-shadow: none;
+}
+
+.sort-selected {
+     background-color: var(--theme-teal);
+     color: var(--black);
+     font-weight: 700;
+}
+
+     .sort-selected:hover {
+          color: var(--black);
+     }
+
+.search-box {
+     --bs-gutter-x: 3.5rem;
+}
+
+.rounded-control {
+     border-radius: 10px;
+}
+
+.categories {
+     margin: 1rem;
+     background-color: var(--white);
+     border-radius: 10px;
+     border: 2px solid var(--black);
+     padding: 1rem;
+}
+
+     .categories div {
+          margin-top: 1rem;
+     }
+
+          .categories div:hover {
+               cursor: pointer;
+          }
+
+.selected-category {
+     font-weight: 700;
+}
+
+.statuses {
+     margin: 1rem;
+     background-color: var(--white);
+     border-radius: 10px;
+     border: 2px solid var(--black);
+     padding: 1rem;
+}
+
+     .statuses div {
+          margin-top: 1rem;
+     }
+
+          .statuses div:hover {
+               cursor: pointer;
+          }
+
+.selected-status {
+     font-weight: 700;
+}
