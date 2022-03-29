@@ -92,10 +92,10 @@ public class MongoBugData : IBugData
                     bug.UserVotes.Remove(userId);
                }
 
-               await bugsInTransaction.ReplaceOneAsync(b => b.Id == bugId, bug);
+               await bugsInTransaction.ReplaceOneAsync(session, b => b.Id == bugId, bug);
 
                var usersInTransaction = db.GetCollection<UserModel>(_db.UserCollectionName);
-               var user = await _userData.GetUser(bug.Author.Id);
+               var user = await _userData.GetUser(userId);
 
                if (isUpvote)
                {
@@ -106,7 +106,7 @@ public class MongoBugData : IBugData
                     var bugToRemove = user.VotedOnBugs.Where(b => b.Id == bugId).First();
                     user.VotedOnBugs.Remove(bugToRemove);
                }
-               await usersInTransaction.ReplaceOneAsync(u => u.Id == userId, user);
+               await usersInTransaction.ReplaceOneAsync(session, u => u.Id == userId, user);
 
                await session.CommitTransactionAsync();
 
@@ -131,12 +131,12 @@ public class MongoBugData : IBugData
           {
                var db = client.GetDatabase(_db.DbName);
                var bugsInTransaction = db.GetCollection<BugModel>(_db.BugCollectionName);
-               await bugsInTransaction.InsertOneAsync(bug);
+               await bugsInTransaction.InsertOneAsync(session, bug);
 
                var usersInTransaction = db.GetCollection<UserModel>(_db.UserCollectionName);
                var user = await _userData.GetUser(bug.Author.Id);
                user.AuthoredBugs.Add(new BasicBugModel(bug));
-               await usersInTransaction.ReplaceOneAsync(u => u.Id == user.Id, user);
+               await usersInTransaction.ReplaceOneAsync(session, u => u.Id == user.Id, user);
 
                await session.CommitTransactionAsync();
           }

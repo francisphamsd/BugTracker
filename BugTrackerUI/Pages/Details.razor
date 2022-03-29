@@ -1,6 +1,8 @@
 ﻿@page "/Details/{Id}"
 @inject IBugData bugData
 @inject NavigationManager navManager
+@inject AuthenticationStateProvider authProvider
+@inject IUserData userData
 
 <h1>Bug Details</h1>
 
@@ -10,7 +12,7 @@
            {
                 <div>
                     <div>
-                        <div>
+                        <div @onclick="VoteUp">
                             <div>@GetUpvoteTopText()</div>
                             <span class="oi oi-caret-top"></span>
                             <div>@GetUpvoteBottomText()</div>
@@ -51,43 +53,75 @@
    }
 
 @code {
-    [Parameter]
-    public string Id { get; set; }
+     [Parameter]
+     public string Id { get; set; }
 
-    private BugModel bug;
+     private BugModel bug;
+     private UserModel loggedInUser;
 
-    protected async override Task OnInitializedAsync()
-    {
-         bug = await bugData.GetBug(Id);
-    }
+     protected async override Task OnInitializedAsync()
+     {
+          bug = await bugData.GetBug(Id);
+          loggedInUser = await authProvider.GetUserFromAuth(userData);
+     }
 
-    private void ClosePage()
-    {
-         navManager.NavigateTo("/");
-    }
+     private void ClosePage()
+     {
+          navManager.NavigateTo("/");
+     }
 
-    private string GetUpvoteTopText()
-    {
-         if (bug.UserVotes?.Count > 0)
-         {
-              return bug.UserVotes.Count.ToString("00");
-         }
-         else
-         {
-              return "Click To";
-         }
-    }
+     private string GetUpvoteTopText()
+     {
+          if (bug.UserVotes?.Count > 0)
+          {
+               return bug.UserVotes.Count.ToString("00");
+          }
+          else
+          {
+               if (bug.Author.Id == loggedInUser?.Id)
+               {
+                    return "Awaiting";
+               }
+               else
+               {
+                    return "Click To";
+               }
+          }
+     }
 
-    private string GetUpvoteBottomText()
-    {
-         if (bug.UserVotes?.Count > 1)
-         {
-              return "Upvotes";
-         }
-         else
-         {
-              return "Upvote";
-         }
-    }
+     private string GetUpvoteBottomText()
+     {
+          if (bug.UserVotes?.Count > 1)
+          {
+               return "Upvotes";
+          }
+          else
+          {
+               return "Upvote";
+          }
+     }
+
+     private async Task VoteUp()
+     {
+          if (loggedInUser is not null)
+          {
+               if (bug.Author.Id == loggedInUser.Id)
+               {
+                    // Can't vote on your own suggestion
+                    return;
+               }
+
+               if (bug.UserVotes.Add(loggedInUser.Id) == false)
+               {
+                    bug.UserVotes.Remove(loggedInUser.Id);
+               }
+
+               await bugData.UpvoteBug(bug.Id, loggedInUser.Id);
+          }
+          else
+          {
+               navManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
+          }
+     }
 }
 

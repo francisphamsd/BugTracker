@@ -32,7 +32,7 @@
            {
                 <Virtualize Items="@bugs" Context="b" OverscanCount="10">
                     <div>
-                        <div>
+                        <div @onclick="(() => VoteUp(b))">
                             <div>@GetUpvoteTopText(b)</div>
                             <span class="oi oi-caret-top"></span>
                             <div>@GetUpvoteBottomText(b)</div>
@@ -252,6 +252,36 @@
           await FilterBugs();
      }
 
+     private async Task VoteUp(BugModel bug)
+     {
+          if (loggedInUser is not null)
+          {
+               if (bug.Author.Id == loggedInUser.Id)
+               {
+                    // Can't vote on your own suggestion
+                    return;
+               }
+
+               if (bug.UserVotes.Add(loggedInUser.Id) == false)
+               {
+                    bug.UserVotes.Remove(loggedInUser.Id);
+               }
+
+               await bugData.UpvoteBug(bug.Id, loggedInUser.Id);
+
+               if (isSortedByNew == false)
+               {
+                    bugs = bugs
+                       .OrderByDescending(b => b.UserVotes.Count)
+                       .ThenByDescending(b => b.DateReported).ToList();
+               }
+          }
+          else
+          {
+               navManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
+          }
+     }
+
      private string GetUpvoteTopText(BugModel bug)
      {
           if (bug.UserVotes?.Count > 0)
@@ -260,7 +290,14 @@
           }
           else
           {
-               return "Click To";
+               if (bug.Author.Id == loggedInUser?.Id)
+               {
+                    return "Awaiting";
+               }
+               else
+               {
+                    return "Click To";
+               }
           }
      }
 
