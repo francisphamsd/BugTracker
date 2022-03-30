@@ -1,6 +1,6 @@
 ﻿namespace BugTrackerLibrary.Models;
 
-public  class CategoryModel
+public class CategoryModel
 {
      [BsonId]
      [BsonRepresentation(BsonType.ObjectId)]

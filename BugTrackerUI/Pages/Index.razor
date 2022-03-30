@@ -43,7 +43,7 @@
                                 @b.Bug
                             </div>
                             <div>
-                                <div class="bug-entry-text-category" @onclick="(() => OpenDetails(b))">
+                                <div class="bug-entry-category-text @GetBugCategoryClass(b)" @onclick="(() => OpenDetails(b))">
                                     @b.Category?.CategoryName
                                 </div>
                             </div>
@@ -356,6 +356,25 @@
           {
                return "bug-entry-not-voted";
           }
+     }
+
+     private string GetBugCategoryClass(BugModel bug)
+     {
+          if (bug is null || bug.Category is null)
+          {
+               return "bug-entry-category-none";
+          }
+
+          string output = bug.Category.CategoryName switch
+          {
+               "Low" => "bug-entry-category-low",
+               "Medium" => "bug-entry-category-medium",
+               "High" => "bug-entry-category-high",
+               "Critical" => "bug-entry-category-critical",
+               _ => "bug-entry-category-none",
+          };
+
+          return output;
      }
 
      private string GetBugStatusClass(BugModel bug)
