@@ -362,7 +362,7 @@
      {
           if (bug is null || bug.Category is null)
           {
-               return "bug-entry-category-none";
+               return "bug-entry-category-suggestion";
           }
 
           string output = bug.Category.CategoryName switch
@@ -371,7 +371,8 @@
                "Medium" => "bug-entry-category-medium",
                "High" => "bug-entry-category-high",
                "Critical" => "bug-entry-category-critical",
-               _ => "bug-entry-category-none",
+               "Suggestion" => "bug-entry-category-suggestion",
+               _ => "bug-entry-category-suggestion",
           };
 
           return output;
