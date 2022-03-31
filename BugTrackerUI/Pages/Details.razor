@@ -4,31 +4,33 @@
 @inject AuthenticationStateProvider authProvider
 @inject IUserData userData
 
-<h1>Bug Details</h1>
+<h1 class="page-heading text-uppercase mb-4">Bug Details</h1>
 
-<div>
-    <div>
+<div class="row justify-content-center detail-form">
+    <div class="col-xl-8 col-lg-10 form-layout">
         @if (bug is not null)
            {
-                <div>
-                    <div>
-                        <div @onclick="VoteUp">
-                            <div>@GetUpvoteTopText()</div>
-                            <span class="oi oi-caret-top"></span>
-                            <div>@GetUpvoteBottomText()</div>
-                        </div>
+                <div class="row bug-detail-row">
+                    <div class="col-11 bug-detail">
                         <div>
-                            <div>@bug.DateReported.ToString("MM.dd.yyyy")</div>
+                            <div class="@GetVoteClass()" @onclick="VoteUp">
+                                <div class="text-uppercase">@GetUpvoteTopText()</div>
+                                <span class="oi oi-caret-top detail-upvote"></span>
+                                <div class="text-uppercase">@GetUpvoteBottomText()</div>
+                            </div>
+                            <div class="bug-detail-date">
+                                <div>@bug.DateReported.ToString("MM.dd.yyyy")</div>
+                            </div>
+                        </div>
+                        <div class="bug-detail-text">
+                            <div class="fw-bold mb-2 bug-detail-bug">@bug.Bug</div>
+                            <div class="mb-2 bug-detail-author">@bug.Author.DisplayName</div>
+                            <div class="mb-2">@bug.Description</div>
+                            <div class="bug-entry-category-text @GetCategoryClass()">@bug.Category.CategoryName</div>
                         </div>
                     </div>
-                    <div>
-                        <div>@bug.Bug</div>
-                        <div>@bug.Author.DisplayName</div>
-                        <div>@bug.Description</div>
-                        <div>@bug.Category.CategoryName</div>
-                    </div>
-                    <div>
-                        <button @onclick="ClosePage"></button>
+                    <div class="col-1 close-button-section">
+                        <button class="btn btn-close" @onclick="ClosePage"></button>
                     </div>
                 </div>
            }
@@ -37,14 +39,14 @@
 
 @if (bug?.BugStatus is not null)
    {
-        <div>
-            <div>
-                <div></div>
-                <div>
-                    <div>
+        <div class="row justify-content-center detail-form">
+            <div class="col-xl-8 col-lg-10 bug-results form-layout">
+                <div class="@GetStatusClass()"></div>
+                <div class="bug-detail-status-section">
+                    <div class="bug-detail-status fw-bold mb-2 bug-detail-bug">
                         @bug.BugStatus.StatusName
                     </div>
-                    <div>
+                    <div class="bug-detail-owner-notes">
                         @((MarkupString)bug.OwnerNotes)
                     </div>
                 </div>
@@ -122,6 +124,61 @@
           {
                navManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
           }
+     }
+
+     private string GetVoteClass()
+     {
+          if (bug.UserVotes is null || bug.UserVotes.Count == 0)
+          {
+               return "bug-detail-no-votes";
+          }
+          else if (bug.UserVotes.Contains(loggedInUser?.Id))
+          {
+               return "bug-detail-voted";
+          }
+          else
+          {
+               return "bug-detail-not-voted";
+          }
+     }
+
+     private string GetCategoryClass()
+     {
+          if (bug is null || bug.Category is null)
+          {
+               return "bug-detail-category-suggestion";
+          }
+
+          string output = bug.Category.CategoryName switch
+          {
+               "Low" => "bug-detail-category-low",
+               "Medium" => "bug-detail-category-medium",
+               "High" => "bug-detail-category-high",
+               "Critical" => "bug-detail-category-critical",
+               "Suggestion" => "bug-detail-category-suggestion",
+               _ => "bug-detail-category-suggestion",
+          };
+
+          return output;
+     }
+
+     private string GetStatusClass()
+     {
+          if (bug is null || bug.BugStatus is null)
+          {
+               return "bug-detail-status-none";
+          }
+
+          string output = bug.BugStatus.StatusName switch
+          {
+               "Resolved" => "bug-detail-status-resolved",
+               "Open" => "bug-detail-status-open",
+               "In Progress" => "bug-detail-status-in-progress",
+               "Closed" => "bug-detail-status-closed",
+               _ => "bug-detail-status-none",
+          };
+
+          return output;
      }
 }
 
