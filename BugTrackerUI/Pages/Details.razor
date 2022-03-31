@@ -26,12 +26,18 @@
                         <div class="bug-detail-text">
                             <div class="fw-bold mb-2 bug-detail-bug">@bug.Bug</div>
                             <div class="mb-2 bug-detail-author">@bug.Author.DisplayName</div>
-                            <div class="mb-2">@bug.Description</div>
-                            <div class="bug-entry-category-text @GetCategoryClass()">@bug.Category.CategoryName</div>
+                            <div class="mb-2 d-none d-md-block">@bug.Description</div>
+                            <div class="bug-entry-category-text d-none-d-md-block @GetCategoryClass()">@bug.Category.CategoryName</div>
                         </div>
                     </div>
                     <div class="col-1 close-button-section">
                         <button class="btn btn-close" @onclick="ClosePage"></button>
+                    </div>
+                </div>
+                <div class="row d-block d-md-none">
+                    <div class="bug-detail-text">
+                        <div>@bug.Description</div>
+                        <div class="bug-entry-category-text">@bug.Category.CategoryName</div>
                     </div>
                 </div>
            }
