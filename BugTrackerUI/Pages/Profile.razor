@@ -5,17 +5,17 @@
 @inject IUserData userData
 @inject NavigationManager navManager
 
-<h1>My Profile</h1>
+<h1 class="page-heading text-uppercase mb-4">My Profile</h1>
 
-<div>
-    <div>
-        <button @onclick="ClosePage"></button>
+<div class="row">
+    <div class="col-12 close-button-section">
+        <button class="btn btn-close" @onclick="ClosePage"></button>
     </div>
 </div>
 
-<div>
-    <h2>My Account</h2>
-    <p>
+<div class="form-layout mb-3">
+    <h2 class="my-submission-heading">My Account</h2>
+    <p class="my-submission-text">
         <a href="MicrosoftIdentity/Account/EditProfile">
             Edit My Profile
         </a>
@@ -23,152 +23,152 @@
 </div>
 
 @if (accepted?.Count > 0)
-{
-    <div>
-        <h2>Accepted Reports</h2>
-        <p>These are your reports that are currently being worked on</p>
+    {
+        <div class="form-layout mb-3">
+            <h2 class="my-submission-heading">Accepted Reports</h2>
+            <p class="my-submission-text">These are your reports that are currently being worked on</p>
 
-        @foreach (var b in accepted)
-        {
-            <hr />
-            <div>
-                @b.Bug
-            </div>
-            <p>
-                @b.DateReported.ToString("MM.dd.yyyy")
-            </p>
-            <p>
-                Total Votes: @b.UserVotes.Count
-            </p>
-            <p>
-                @b.Category.CategoryName
-            </p>
-            <p>
-                @b.Description
-            </p>
-            @if (b.BugStatus is not null)
-            {
-                <div>
-                    @b.BugStatus.StatusName
-                </div>
-                <p>
-                    @((MarkupString)b.OwnerNotes)
-                </p>
-            }
-        }
-    </div>
-}
+            @foreach (var b in accepted)
+                {
+                    <hr class="my-submission-separator"/>
+                    <div class="fw-bold bug-detail-bug">
+                        @b.Bug
+                    </div>
+                    <p class="my-submission-text">
+                        @b.DateReported.ToString("MM.dd.yyyy")
+                    </p>
+                    <p class="my-submission-text">
+                        Total Votes: @b.UserVotes.Count
+                    </p>
+                    <p class="my-submission-text">
+                        @b.Category.CategoryName
+                    </p>
+                    <p class="my-submission-text">
+                        @b.Description
+                    </p>
+                    @if (b.BugStatus is not null)
+                        {
+                            <div class="fw-bold bug-detail-bug">
+                                @b.BugStatus.StatusName
+                            </div>
+                            <p class="my-submission-text">
+                                @((MarkupString)b.OwnerNotes)
+                            </p>
+                        }
+                }
+        </div>
+    }
 
 @if (archived?.Count > 0)
-{
-    <div>
-        <h2>Archived Reports</h2>
-        <p>These are your reports that are storing in the archive</p>
+    {
+        <div class="form-layout mb-3">
+            <h2 class="my-submission-heading">Archived Reports</h2>
+            <p class="my-submission-text">These are your reports that are storing in the archive</p>
 
-        @foreach (var b in archived)
-        {
-            <hr />
-            <div>
-                @b.Bug
-            </div>
-            <p>
-                @b.DateReported.ToString("MM.dd.yyyy")
-            </p>
-            <p>
-                Total Votes: @b.UserVotes.Count
-            </p>
-            <p>
-                @b.Category.CategoryName
-            </p>
-            <p>
-                @b.Description
-            </p>
-            @if (b.BugStatus is not null)
-            {
-                <div>
-                    @b.BugStatus.StatusName
-                </div>
-                <p>
-                    @((MarkupString)b.OwnerNotes)
-                </p>
-            }
-        }
-    </div>
-}
+            @foreach (var b in archived)
+                {
+                    <hr class="my-submission-separator" />
+                    <div class="fw-bold bug-detail-bug">
+                        @b.Bug
+                    </div>
+                    <p class="my-submission-text">
+                        @b.DateReported.ToString("MM.dd.yyyy")
+                    </p>
+                    <p class="my-submission-text">
+                        Total Votes: @b.UserVotes.Count
+                    </p>
+                    <p class="my-submission-text">
+                        @b.Category.CategoryName
+                    </p>
+                    <p class="my-submission-text">
+                        @b.Description
+                    </p>
+                    @if (b.BugStatus is not null)
+                        {
+                            <div class="fw-bold bug-detail-bug">
+                                @b.BugStatus.StatusName
+                            </div>
+                            <p class="my-submission-text">
+                                @((MarkupString)b.OwnerNotes)
+                            </p>
+                        }
+                }
+        </div>
+    }
 
 @if (pending?.Count > 0)
-{
-    <div>
-        <h2>Pending Reports</h2>
-        <p>These are your reports that have not yet been reviewed by the administrators</p>
+    {
+        <div class="form-layout mb-3">
+            <h2 class="my-submission-heading">Pending Reports</h2>
+            <p class="my-submission-text">These are your reports that have not yet been reviewed by the administrators</p>
 
-        @foreach (var b in pending)
-        {
-            <hr />
-            <div>
-                @b.Bug
-            </div>
-            <p>
-                @b.DateReported.ToString("MM.dd.yyyy")
-            </p>
-            <p>
-                Total Votes: @b.UserVotes.Count
-            </p>
-            <p>
-                @b.Category.CategoryName
-            </p>
-            <p>
-                @b.Description
-            </p>
-            @if (b.BugStatus is not null)
-            {
-                <div>
-                    @b.BugStatus.StatusName
-                </div>
-                <p>
-                    @((MarkupString)b.OwnerNotes)
-                </p>
-            }
-        }
-    </div>
-}
+            @foreach (var b in pending)
+                {
+                    <hr class="my-submission-separator" />
+                    <div class="fw-bold bug-detail-bug">
+                        @b.Bug
+                    </div>
+                    <p class="my-submission-text">
+                        @b.DateReported.ToString("MM.dd.yyyy")
+                    </p>
+                    <p class="my-submission-text">
+                        Total Votes: @b.UserVotes.Count
+                    </p>
+                    <p class="my-submission-text">
+                        @b.Category.CategoryName
+                    </p>
+                    <p class="my-submission-text">
+                        @b.Description
+                    </p>
+                    @if (b.BugStatus is not null)
+                        {
+                            <div class="fw-bold bug-detail-bug">
+                                @b.BugStatus.StatusName
+                            </div>
+                            <p class="my-submission-text">
+                                @((MarkupString)b.OwnerNotes)
+                            </p>
+                        }
+                }
+        </div>
+    }
 
 @if (rejected?.Count > 0)
-{
-    <div>
-        <h2>Rejected Reports</h2>
-        <p>These are your reports that are not deem to be appropriate for a bug tracker or feature suggestion</p>
+    {
+        <div class="form-layout mb-3">
+            <h2 class="my-submission-heading">Rejected Reports</h2>
+            <p class="my-submission-text">These are your reports that are not deem to be appropriate for a bug tracker or feature suggestion</p>
 
-        @foreach (var b in rejected)
-        {
-            <hr />
-            <div>
-                @b.Bug
-            </div>
-            <p>
-                @b.DateReported.ToString("MM.dd.yyyy")
-            </p>
-            <p>
-                Total Votes: @b.UserVotes.Count
-            </p>
-            <p>
-                @b.Category.CategoryName
-            </p>
-            <p>
-                @b.Description
-            </p>
-            @if (b.BugStatus is not null)
-            {
-                <div>
-                    @b.BugStatus.StatusName
-                </div>
-                <p>
-                    @((MarkupString)b.OwnerNotes)
-                </p>
-            }
-        }
-    </div>
-}
+            @foreach (var b in rejected)
+                {
+                    <hr class="my-submission-separator" />
+                    <div class="fw-bold bug-detail-bug">
+                        @b.Bug
+                    </div>
+                    <p class="my-submission-text">
+                        @b.DateReported.ToString("MM.dd.yyyy")
+                    </p>
+                    <p class="my-submission-text">
+                        Total Votes: @b.UserVotes.Count
+                    </p>
+                    <p class="my-submission-text">
+                        @b.Category.CategoryName
+                    </p>
+                    <p class="my-submission-text">
+                        @b.Description
+                    </p>
+                    @if (b.BugStatus is not null)
+                        {
+                            <div class="fw-bold bug-detail-bug">
+                                @b.BugStatus.StatusName
+                            </div>
+                            <p class="my-submission-text">
+                                @((MarkupString)b.OwnerNotes)
+                            </p>
+                        }
+                }
+        </div>
+    }
 
 @code {
      private UserModel loggedInUser;
