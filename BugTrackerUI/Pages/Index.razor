@@ -125,7 +125,7 @@
 
                string firstName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("givenname"))?.Value;
                string lastName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("surname"))?.Value;
-               string displayName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("name"))?.Value;
+               string displayName = authState.User.Claims.FirstOrDefault(c => c.Type.Equals("name"))?.Value;
                string email = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("email"))?.Value;
 
                bool isDirty = false;
