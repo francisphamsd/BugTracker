@@ -55,6 +55,72 @@
         </div>
    }
 
+@if (bug is not null)
+   {
+        <AuthorizeView Policy="Admin">
+            <div class="row justify-content-center detail-form">
+                <div class="col-xl-8 col-lg-10 form-layout admin-details">
+                    <div>
+                        <div class="bug-detail-status fw-bold mb-2 bug-detail-bug">
+                            Set Status
+                        </div>
+                        @if (string.IsNullOrWhiteSpace(settingStatus))
+                           {
+                                  //(Resolved, Open, In Progress, Closed)
+                                <div class="admin-set-statuses">
+                                    <button @onclick="@(() => settingStatus = "resolved")"
+                                        class="btn bug-entry-category-text btn-archive btn-status-resolved">
+                                        resolved
+                                    </button>
+                                    <button @onclick="@(() => settingStatus = "open")"
+                                        class="btn bug-entry-category-text btn-archive btn-status-open">
+                                        open
+                                    </button>
+                                    <button @onclick="@(() => settingStatus = "in progress")"
+                                        class="btn bug-entry-category-text btn-archive btn-status-in-progress">
+                                        in progress
+                                    </button>
+                                    <button @onclick="@(() => settingStatus = "closed")"
+                                        class="btn bug-entry-category-text btn-archive btn-status-closed">
+                                        closed
+                                    </button>
+                                </div>
+                           }
+                          else if (settingStatus == "resolved")
+                           {
+                                <div>
+                                    <input @bind="urlText"
+                                        class="form-control rounded-control"
+                                        type="text"
+                                        placeholder="Url"
+                                        aria-label="Content Url" />
+                                </div>
+                                <div class="bug-entry-bottom">
+                                    <button class="btn btn-archive-confirm" @onclick="ResolveSetStatus">
+                                        confirm
+                                    </button>
+                                    <button class="btn btn-archive-cancel" @onclick="(() => settingStatus = null)">
+                                        cancel
+                                    </button>
+                                </div>
+                           }
+                          else
+                           {
+                                <div class="bug-entry-bottom">
+                                    <button class="btn btn-archive-confirm" @onclick="ResolveSetStatus">
+                                        confirm
+                                    </button>
+                                    <button class="btn btn-archive-cancel" @onclick="(() => settingStatus = null)">
+                                        cancel
+                                    </button>
+                                </div>
+                           }
+                    </div>
+                </div>
+            </div>
+        </AuthorizeView>
+   }
+
 @code {
      [Parameter]
      public string Id { get; set; }
@@ -73,7 +139,7 @@
           statuses = await statusData.GetAllStatuses();
      }
 
-     private async Task CompleteSetStatus()
+     private async Task ResolveSetStatus()
      {
           switch (settingStatus)
           {
