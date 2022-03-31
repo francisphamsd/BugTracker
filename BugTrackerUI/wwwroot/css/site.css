@@ -684,3 +684,30 @@ my-submission-text {
 .btn-archive-confirm {
      color: var(--status-closed);
 }
+
+/*DETAILS STATUS*/
+.admin-details {
+     margin-top: 20px;
+}
+
+.admin-set-statuses {
+     display: flex;
+     justify-content: space-evenly;
+     flex-wrap: wrap;
+}
+
+.btn-status-resolved:hover {
+     color: var(--status-resolved);
+}
+
+.btn-status-open:hover {
+     color: var(--status-open);
+}
+
+.btn-status-in-progress:hover {
+     color: var(--status-in-progress);
+}
+
+.btn-status-closed:hover {
+     color: var(--status-closed);
+}
