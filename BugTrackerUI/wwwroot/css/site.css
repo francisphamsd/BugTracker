@@ -654,6 +654,33 @@ my-submission-text {
 }
 
 .my-submission-separator {
-color: var(--gray);
-height: 2px;
-opacity: 1;
+     color: var(--gray);
+     height: 2px;
+     opacity: 1;
+}
+
+/*ARCHIVING*/
+.bug-entry-bottom {
+     display: flex;
+}
+
+.btn-archive {
+     border: 0;
+     background-color: var(--white);
+     padding: 0 10px;
+     flex: unset;
+}
+
+.btn-archive-confirm,
+.btn-archive-cancel {
+     text-transform: uppercase;
+     color: var(--gray);
+     font-family: 'Montserrat', sans-serif;
+     font-weight: 700;
+     font-size: 0.8rem;
+     flex: 1;
+}
+
+.btn-archive-confirm {
+     color: var(--status-closed);
+}

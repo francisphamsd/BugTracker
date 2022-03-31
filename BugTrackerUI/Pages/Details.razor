@@ -1,8 +1,9 @@
 ﻿@page "/Details/{Id}"
-@inject IBugData bugData
 @inject NavigationManager navManager
 @inject AuthenticationStateProvider authProvider
 @inject IUserData userData
+@inject IBugData bugData
+@inject IStatusData statusData
 
 <h1 class="page-heading text-uppercase mb-4">Bug Details</h1>
 
@@ -61,10 +62,50 @@
      private BugModel bug;
      private UserModel loggedInUser;
 
+     private List<StatusModel> statuses;
+     private string settingStatus = "";
+     private string urlText = "";
+
      protected async override Task OnInitializedAsync()
      {
           bug = await bugData.GetBug(Id);
           loggedInUser = await authProvider.GetUserFromAuth(userData);
+          statuses = await statusData.GetAllStatuses();
+     }
+
+     private async Task CompleteSetStatus()
+     {
+          switch (settingStatus)
+          {
+               case "resolved":
+                    if (string.IsNullOrWhiteSpace(urlText))
+                    {
+                         return;
+                    }
+                    bug.BugStatus = statuses.Where(s => s.StatusName.ToLower() == settingStatus.ToLower()).First();
+                    bug.OwnerNotes = $"This bug is fixed and updated. You can read the release note here: <a href='{urlText}' target='_blank'>{urlText}</a>";
+                    break;
+
+               case "open":
+                    bug.BugStatus = statuses.Where(s => s.StatusName.ToLower() == settingStatus.ToLower()).First();
+                    bug.OwnerNotes = $"We are well aware of the bug. Our developers may work on it in future updates.";
+                    break;
+
+               case "in progress":
+                    bug.BugStatus = statuses.Where(s => s.StatusName.ToLower() == settingStatus.ToLower()).First();
+                    bug.OwnerNotes = $"We are currently working on this bug. It will be fixed the next update.";
+                    break;
+
+               case "closed":
+                    bug.BugStatus = statuses.Where(s => s.StatusName.ToLower() == settingStatus.ToLower()).First();
+                    bug.OwnerNotes = $"The report is incomplete, we are not able to replicate the bug on our end. Please provide more information and report it again.";
+                    break;
+
+               default:
+                    return;
+          }
+          settingStatus = null;
+          await bugData.UpdateBug(bug);
      }
 
      private void ClosePage()
@@ -180,5 +221,5 @@
 
           return output;
      }
-}
+     }
 
